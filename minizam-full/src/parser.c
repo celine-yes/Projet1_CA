@@ -46,11 +46,20 @@ int label_addr(lbl_list* l, char* label) {
 
 /* Frees a linked list of labels. */
 void free_labels(lbl_list* l) {
-  while (l) {
-    lbl_list* next = l->next;
-    free(l);
-    l = next;
-  }
+
+  lbl_list* current = l;
+    while (current != NULL) {
+        lbl_list* next = current->next;
+        free(current->label); // Assuming label is dynamically allocated
+        free(current); // Free the list element
+        current = next;
+    }
+
+  // while (l) {
+  //   lbl_list* next = l->next;
+  //   free(l);
+  //   l = next;
+  // }
 }
 
 

@@ -99,39 +99,56 @@ mlvalue caml_interprete(code_t* prog) {
 
     case APPLY: {
       uint64_t n = prog[pc++];
-      mlvalue* tmp = malloc(n * sizeof(mlvalue)); // TODO: remove malloc
-      for (uint64_t i = 0; i < n; i++) {
-        tmp[i] = POP_STACK();
-      }
+
+      // mlvalue* tmp = malloc(n * sizeof(mlvalue)); // TODO: remove malloc
+      // for (uint64_t i = 0; i < n; i++) {
+      //   tmp[i] = POP_STACK();
+      // }
+
       PUSH_STACK(env);
       PUSH_STACK(Val_long(pc));
       PUSH_STACK(Val_long(extra_args));
+
       /* push in reverse order to keep the initial order */
-      for (int i = n-1; i >= 0; i--) {
-        PUSH_STACK(tmp[i]);
-      }
-      free(tmp);
+
+      // for (int i = n-1; i >= 0; i--) {
+      //   PUSH_STACK(tmp[i]);
+      // }
+      // free(tmp);
+
+      // Les arguments sont déjà sur la pile, pas besoin de les déplacer
       pc = Addr_closure(accu);
       env = Env_closure(accu);
-      extra_args = n-1;
+      extra_args += n-1;
+      
       break;
     }
 
     case APPTERM: {
       uint64_t n = prog[pc++];
       uint64_t m = prog[pc++];
-      mlvalue* tmp = malloc(n * sizeof(mlvalue)); // TODO: remove malloc
-      for (uint64_t i = 0; i < n; i++) {
-        tmp[i] = POP_STACK();
+
+      for (uint64_t i = 0; i < m; ++i) {
+        if (i < n) {
+          // Move necessary arguments down the stack to their correct position
+          stack[sp - m + i] = stack[sp - n + i];
+        }
+        POP_STACK(); // Pop the top of the stack to remove unnecessary items
       }
-      for (uint64_t i = 0; i < m-n; i++) {
-        POP_STACK();
-      }
-      /* push in reverse order to keep the initial order */
-      for (int i = n-1; i >= 0; i--) {
-        PUSH_STACK(tmp[i]);
-      }
-      free(tmp);
+
+      // mlvalue* tmp = malloc(n * sizeof(mlvalue)); // TODO: remove malloc
+      // for (uint64_t i = 0; i < n; i++) {
+      //   tmp[i] = POP_STACK();
+      // }
+      // for (uint64_t i = 0; i < m-n; i++) {
+      //   POP_STACK();
+      // }
+      // /* push in reverse order to keep the initial order */
+      // for (int i = n-1; i >= 0; i--) {
+      //   PUSH_STACK(tmp[i]);
+      // }
+      // free(tmp);
+
       pc = Addr_closure(accu);
       env = Env_closure(accu);
       extra_args += n-1;
