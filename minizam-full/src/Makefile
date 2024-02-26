@@ -1,4 +1,4 @@
-CC = clang
+CC=gcc-12
 CFLAGS = -Wall -Wextra -g
 OBJS = alloc.o interp.o minizam.o mlvalues.o parser.o primitives.o domain.o
 
