@@ -2,6 +2,7 @@
 #define _MLVALUES_H
 
 #include <stdint.h>
+//#include "domain_state.h"
 
 typedef int64_t mlvalue;
 typedef uint64_t header_t;
@@ -25,6 +26,19 @@ typedef enum { ENV_T, CLOSURE_T, BLOCK_T } tag_t;
      +--------+-------+-----+
 bits  63    10 9     8 7   0
 */
+
+#define make_block(size, tag) ({ \
+  mlvalue* block = (mlvalue*)Caml_state->heap_ptr; \
+  *block = Make_header(size, WHITE, tag); /* Configurer l'en-tête du bloc */ \
+  Caml_state->heap_ptr += size + 1; /* Avancer le pointeur pour le prochain bloc */ \
+  if ((char*)Caml_state->heap_ptr - (char*)Caml_state->heap_start > 32 * 1024) { \
+    fprintf(stderr, "Dépassement de la capacité du tas!\n"); \
+    exit(EXIT_FAILURE); \
+  } \
+  Val_ptr(block + 1); /* Retourner le mlvalue pointant après l'en-tête */ \
+})
+
+
 #define Size_hd(hd)  ((hd) >> 10)
 #define Color_hd(hd) (((hd) >> 8) & 3)
 #define Tag_hd(hd)   ((hd) & 0xFF)
@@ -47,7 +61,7 @@ bits  63    10 9     8 7   0
 #define Env_closure(c)  Field1(c)
 
 mlvalue make_empty_block(tag_t tag);
-mlvalue make_block(size_t size, tag_t tag);
+//mlvalue make_block(size_t size, tag_t tag);
 
 #define Make_empty_env() make_empty_block(ENV_T)
 #define Make_env(size) make_block(size,ENV_T)
@@ -67,5 +81,8 @@ typedef uint64_t code_t;
 int print_instr(code_t* prog, int pc);
 void print_prog(code_t* code);
 
+// ---------------------------------------------------------------
+void mark_block(mlvalue block);
+int is_marked(mlvalue block);
 
 #endif /* _MLVALUES_H */

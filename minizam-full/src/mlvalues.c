@@ -7,17 +7,38 @@
 #include "instruct.h"
 #include "primitives.h"
 
+
+// Marquer un bloc comme visité en changeant sa couleur
+void mark_block(mlvalue block) {
+    if (Is_block(block)) { // Vérifier si c'est bien un pointeur vers un bloc
+        header_t* header = (header_t*)Ptr_val(block) - 1;
+        *header = Make_header(Size_hd(*header), BLACK, Tag_hd(*header));
+    }
+}
+
+// Vérifier si un bloc est marqué comme visité
+int is_marked(mlvalue block) {
+    if (!Is_block(block)) {
+        return 0; // Les entiers ne sont pas considérés comme des blocs à marquer
+    }
+    return Color_hd(Hd_val(block)) == BLACK;
+}
+
+
+
+
 mlvalue make_empty_block(tag_t tag) {
   mlvalue* block = caml_alloc(sizeof(mlvalue));
   block[0] = Make_header(0, WHITE, tag);
   return Val_ptr(block+1);
 }
 
-mlvalue make_block(size_t size, tag_t tag) {
-  mlvalue* block = caml_alloc((size+1) * sizeof(mlvalue));
-  block[0] = Make_header(size, WHITE, tag);
-  return Val_ptr(block+1);
-}
+
+// mlvalue make_block(size_t size, tag_t tag) {
+//   mlvalue* block = caml_alloc((size+1) * sizeof(mlvalue));
+//   block[0] = Make_header(size, WHITE, tag);
+//   return Val_ptr(block+1);
+// }
 
 mlvalue make_closure(uint64_t addr, mlvalue env) {
   mlvalue* block = caml_alloc(3 * sizeof(mlvalue));

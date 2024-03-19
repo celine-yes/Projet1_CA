@@ -8,6 +8,10 @@ typedef struct _caml_domain_state {
   /* Stack */
   mlvalue* stack;
 
+  /* Heap */
+  mlvalue* heap_start; // Début du tas alloué
+  mlvalue* heap_ptr; // Pointeur courant dans le tas, pour les allocations
+  
 } caml_domain_state;
 
 /* The global state */
