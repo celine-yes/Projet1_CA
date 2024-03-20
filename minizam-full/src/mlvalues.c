@@ -45,6 +45,7 @@ mlvalue make_closure(uint64_t addr, mlvalue env) {
   block[0] = Make_header(2, WHITE, CLOSURE_T);
   block[1] = Val_long(addr);
   block[2] = env;
+  
   return Val_ptr(block+1);
 }
 

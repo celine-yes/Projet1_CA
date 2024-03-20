@@ -172,6 +172,12 @@ mlvalue caml_interprete(code_t* prog) {
         extra_args = Long_val(POP_STACK());
         pc  = Long_val(POP_STACK());
         env = POP_STACK();
+
+        // Ajoute à la liste des racines
+        gc_root* new_root = malloc(sizeof(gc_root));
+        new_root->object = &accu;
+        new_root->next = Caml_state->gc_roots;
+        Caml_state->gc_roots = new_root;
       }
       break;
     }
@@ -188,6 +194,12 @@ mlvalue caml_interprete(code_t* prog) {
         Field(closure_env,i+1) = POP_STACK();
       }
       accu = make_closure(addr,closure_env);
+
+      // Ajoute à la liste des racines
+      gc_root* new_root = malloc(sizeof(gc_root));
+      new_root->object = &accu;
+      new_root->next = Caml_state->gc_roots;
+      Caml_state->gc_roots = new_root;
       break;
     }
 
@@ -204,17 +216,36 @@ mlvalue caml_interprete(code_t* prog) {
       }
       accu = make_closure(addr,closure_env);
       PUSH_STACK(accu);
+
+      // Ajoute à la liste des racines
+      gc_root* new_root = malloc(sizeof(gc_root));
+      new_root->object = &accu;
+      new_root->next = Caml_state->gc_roots;
+      Caml_state->gc_roots = new_root;
       break;
     }
 
     case OFFSETCLOSURE: {
       accu = make_closure(Long_val(Field(env,0)), env);
+
+      // Ajoute à la liste des racines
+      gc_root* new_root = malloc(sizeof(gc_root));
+      new_root->object = &accu;
+      new_root->next = Caml_state->gc_roots;
+      Caml_state->gc_roots = new_root;
       break;
     }
 
     case MAKEBLOCK: {
       uint64_t n = prog[pc++];
       mlvalue blk = make_block(n,BLOCK_T);
+
+      // Ajoute à la liste des racines
+      gc_root* new_root = malloc(sizeof(gc_root));
+      new_root->object = &accu;
+      new_root->next = Caml_state->gc_roots;
+      Caml_state->gc_roots = new_root;
+      
       if (n > 0) {
         Field(blk,0) = accu;
         for (unsigned int i = 1; i < n; i++) {

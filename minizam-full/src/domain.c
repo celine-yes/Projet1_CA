@@ -15,4 +15,6 @@ void caml_init_domain() {
   
   Caml_state->heap_start = malloc(32 * 1024);
   Caml_state->heap_ptr = Caml_state->heap_start;
+
+  Caml_state->gc_roots = NULL;
   }
