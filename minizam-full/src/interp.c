@@ -100,28 +100,18 @@ mlvalue caml_interprete(code_t* prog) {
     case APPLY: {
       uint64_t n = prog[pc++];
 
-      // mlvalue* tmp = malloc(n * sizeof(mlvalue)); // TODO: remove malloc
-      mlvalue tmp[n];
-      for (uint64_t i = 0; i < n; i++) {
-        tmp[i] = POP_STACK();
+      sp = sp + 3;
+
+      for (uint64_t i = 1; i <= n; i++) {
+         stack[sp-i] = stack[sp-i-3];
       }
+      stack[sp-n-3] = env;
+      stack[sp-n-2] = Val_long(pc);
+      stack[sp-n-1] = Val_long(extra_args);
 
-      PUSH_STACK(env);
-      PUSH_STACK(Val_long(pc));
-      PUSH_STACK(Val_long(extra_args));
-
-      /* push in reverse order to keep the initial order */
-
-      for (int i = n-1; i >= 0; i--) {
-        PUSH_STACK(tmp[i]);
-      }
-      //free(tmp);
-
-      // Les arguments sont déjà sur la pile, pas besoin de les déplacer
       pc = Addr_closure(accu);
       env = Env_closure(accu);
-      extra_args += n-1;
-      
+      extra_args = n-1;
       break;
     }
 
@@ -129,27 +119,11 @@ mlvalue caml_interprete(code_t* prog) {
       uint64_t n = prog[pc++];
       uint64_t m = prog[pc++];
 
-      // for (uint64_t i = 0; i < m; ++i) {
-      //   if (i < n) {
-      //     // Move necessary arguments down the stack to their correct position
-      //     stack[sp - m + i] = stack[sp - n + i];
-      //   }
-      //   POP_STACK(); // Pop the top of the stack to remove unnecessary items
-      // }
+      for (int i = 0; i < n; i++) {
+        stack[sp-m+i] = stack[sp-n+i];
+      }
 
-      //mlvalue* tmp = malloc(n * sizeof(mlvalue)); // TODO: remove malloc
-      mlvalue tmp[n];
-      for (uint64_t i = 0; i < n; i++) {
-        tmp[i] = POP_STACK();
-      }
-      for (uint64_t i = 0; i < m-n; i++) {
-        POP_STACK();
-      }
-      /* push in reverse order to keep the initial order */
-      for (int i = n-1; i >= 0; i--) {
-        PUSH_STACK(tmp[i]);
-      }
-      //free(tmp);
+      sp = sp - (m-n);
 
       pc = Addr_closure(accu);
       env = Env_closure(accu);
