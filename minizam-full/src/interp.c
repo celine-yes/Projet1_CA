@@ -119,7 +119,7 @@ mlvalue caml_interprete(code_t* prog) {
       uint64_t n = prog[pc++];
       uint64_t m = prog[pc++];
 
-      for (int i = 0; i < n; i++) {
+      for (uint64_t i = 0; i < n; i++) {
         stack[sp-m+i] = stack[sp-n+i];
       }
 
